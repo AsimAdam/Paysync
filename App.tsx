@@ -1,20 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import Nav from './src/stack/nav';
+import CalendarScreen from './src/screens/Calendar';
+import Dues from './src/screens/Dues';
+import Paid from './src/screens/Paid';
+import FolderDetails from './src/screens/FolderDetails';
+import { Calendar } from 'react-native-calendars';
+import PaymentDetails from './src/screens/PaymentDetails';
+import PaymentForm from './src/screens/PaymentForm';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    return <PaymentForm />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
