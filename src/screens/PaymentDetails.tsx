@@ -1,47 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useDispatch } from 'react-redux';
+import { updatePaymentStatus } from '../redux/actions';
 
-const PaymentDetails = ({ navigation }: any) => {
+const PaymentDetails = ({ navigation, route }: any) => {
+    const { payment, folderId } = route.params;
+    const [isPaid, setIsPaid] = useState(payment.paid);
+    const [installmentsPaid, setInstallmentsPaid] = useState(payment.installmentsPaid || 0); 
+    const dispatch = useDispatch();
+
+    // Calculate passed installments based on current date
+    useEffect(() => {
+        const calculateInstallmentsPaid = () => {
+            if (payment.installmentMonths) {
+                const today = new Date();
+                const dueDate = new Date(payment.dueDate);
+                const monthsPassed = Math.floor(
+                    (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24 * 30) 
+                );
+
+                const installmentsPaid = Math.min(monthsPassed, payment.installmentMonths); 
+                console.log("Installments Paid: ", installmentsPaid);
+                setInstallmentsPaid(installmentsPaid);
+            }
+        };
+
+        calculateInstallmentsPaid();
+    }, [payment]);
+
+    const toggleStatus = () => {
+        const updatedPayment = { ...payment, paid: !isPaid, installmentsPaid };
+        dispatch(updatePaymentStatus(folderId, updatedPayment));
+        setIsPaid(!isPaid);
+        navigation.goBack();
+    };
+
     return (
         <View style={styles.container}>
-            {/* Header with Gradient */}
-            <LinearGradient 
-                colors={['#78C4FA', '#3D3EAA']} 
-                style={styles.headerContainer}
-            >
+            <LinearGradient colors={['#78C4FA', '#3D3EAA']} style={styles.headerContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
                     <Ionicons name="arrow-back" size={wp('7%')} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Utilities</Text>
-                <Text style={styles.amount}>1500$</Text>
+                <Text style={styles.headerTitle}>{payment.title}</Text>
+                <Text style={styles.amount}>{payment.amount}$</Text>
                 <Image source={require('../assets/money.png')} style={styles.icon} />
 
-                {/* Static Button for Payable */}
-                <TouchableOpacity style={styles.payableButton}>
-                    <Text style={styles.statusText}>Payable</Text>
+                <TouchableOpacity style={styles.payableButton} onPress={toggleStatus}>
+                    <Text style={styles.statusText}>{isPaid ? 'Paid' : 'Payable'}</Text>
                     <Ionicons name="chevron-down" size={wp('4%')} color="white" />
                 </TouchableOpacity>
             </LinearGradient>
 
-            {/* Installment Tags */}
             <View style={styles.installmentContainer}>
                 <TouchableOpacity style={styles.installmentTag}>
-                    <Text style={styles.installmentText}>1 year</Text>
+                    <Text style={styles.installmentText}>{payment.installmentMonths} months</Text>
                     <Text style={styles.installmentSubText}>Installments</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.installmentTagPaid}>
-                    <Text style={styles.installmentText}>2 installments</Text>
+                    <Text style={styles.installmentText}>{installmentsPaid} installments</Text>
                     <Text style={styles.installmentSubText}>Paid</Text>
                 </TouchableOpacity>
             </View>
 
-            {/* Static Description */}
-            <Text style={styles.description}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy nibh euismod tincidunt ut nibh aliquam erat volutpat.
-            </Text>
+            <Text style={styles.description}>{payment.description}</Text>
         </View>
     );
 };
@@ -84,7 +108,7 @@ const styles = StyleSheet.create({
         tintColor: 'rgba(255,255,255,0.3)',
     },
     payableButton: {
-        backgroundColor: '#32C5FF', // Blue for Payable
+        backgroundColor: '#32C5FF',
         borderRadius: wp('3%'),
         paddingVertical: hp('0.8%'),
         paddingHorizontal: wp('4%'),

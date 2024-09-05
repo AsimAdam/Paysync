@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { useDispatch } from 'react-redux';
+import { addPayment } from '../redux/actions';
 
-const PaymentForm = ({ navigation }: any) => {
+const PaymentForm = ({ navigation, route }: any) => {
+    const { folderId, folderName } = route.params;
+
+    const [title, setTitle] = useState('');
+    const [amount, setAmount] = useState(''); 
     const [paymentType, setPaymentType] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
     const [installments, setInstallments] = useState('');
     const [dueDate, setDueDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [description, setDescription] = useState('');
+
+    const dispatch = useDispatch();
 
     const [openPaymentType, setOpenPaymentType] = useState(false);
     const [openPaymentMethod, setOpenPaymentMethod] = useState(false);
@@ -40,6 +49,36 @@ const PaymentForm = ({ navigation }: any) => {
         setDueDate(currentDate);
     };
 
+    const handleSave = () => {
+        if (!title || !paymentType || !paymentMethod || !dueDate || !amount) {
+            Alert.alert('Error', 'Please fill in all required fields');
+            return;
+        }
+    
+        const newPayment: any = {
+            id: Date.now().toString(),
+            title,
+            amount,
+            dueDate: dueDate.toISOString().split('T')[0],
+            description,
+            type: paymentType,
+            paid: false,
+            installmentMonths: paymentMethod === 'Installments' ? installments : null,
+            installmentsPaid: 0,
+            createdDate: new Date().toISOString(),
+        };
+    
+        // Dispatch the action to add the payment to the folder
+        dispatch(addPayment(newPayment, folderId));
+    
+        console.log('Added payment:', newPayment);
+    
+        // Navigate back to the folder details screen after saving
+        navigation.goBack();
+    };
+    
+    
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container}>
@@ -52,7 +91,7 @@ const PaymentForm = ({ navigation }: any) => {
                 </View>
 
                 {/* Title Input */}
-                <CustomInput placeholder="Title" />
+                <CustomInput placeholder="Title" value={title} onChangeText={setTitle} />
 
                 {/* Payment Type Dropdown */}
                 <DropDownPicker
@@ -64,7 +103,7 @@ const PaymentForm = ({ navigation }: any) => {
                     placeholder="Select Payment Type"
                     style={styles.dropdown}
                     dropDownContainerStyle={styles.dropDownContainer}
-                    zIndex={5000} // Ensures dropdown appears above other elements
+                    zIndex={5000}
                 />
 
                 {/* Payment Method Dropdown */}
@@ -95,7 +134,15 @@ const PaymentForm = ({ navigation }: any) => {
                             zIndex={3000}
                         />
                         <Text style={styles.label}>Per Installment</Text>
-                        <CustomInput placeholder="1000$" />
+                        <CustomInput placeholder="Enter Installment Amount" value={amount} onChangeText={setAmount} />
+                    </>
+                )}
+
+                {/* Amount Input */}
+                {paymentMethod !== 'Installments' && (
+                    <>
+                        <Text style={styles.label}>Amount</Text>
+                        <CustomInput placeholder="Enter Amount" value={amount} onChangeText={setAmount} />
                     </>
                 )}
 
@@ -126,10 +173,12 @@ const PaymentForm = ({ navigation }: any) => {
                     multiline={true}
                     numberOfLines={4}
                     style={styles.descriptionInput}
+                    value={description}
+                    onChangeText={setDescription}
                 />
 
                 {/* Save Button */}
-                <CustomButton label="Save" onPress={() => {}} />
+                <CustomButton label="Save" onPress={handleSave} />
             </ScrollView>
         </SafeAreaView>
     );

@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { useSelector } from 'react-redux';
 import Header from '../components/Header';
-import AddFolderModal from '../components/FolderModal';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const Dues = () => {
-    const [isModalVisible, setModalVisible] = useState(false);
+const Dues = ({ navigation }: any) => {
+    const folders = useSelector((state: any) => state.folders.folders);
 
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
-
-    const handleAddFolder = (folderName: string) => {
-        console.log('New folder added:', folderName);
-        toggleModal(); // Close modal after adding
-    };
+    const payableFolders = folders.filter((folder: any) => folder.type === 'payable');
+    const receivableFolders = folders.filter((folder: any) => folder.type === 'receivable');
 
     return (
         <SafeAreaView style={styles.container}>
@@ -32,26 +27,21 @@ const Dues = () => {
                         <View style={styles.line} />
                     </View>
                     <View style={styles.iconRow}>
-                        {/* Folder Icon 1 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Bank</Text>
-                        </TouchableOpacity>
-                        {/* Folder Icon 2 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Utilities</Text>
-                        </TouchableOpacity>
-                        {/* Folder Icon 3 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Bank</Text>
-                        </TouchableOpacity>
+                        {payableFolders.length > 0 ? (
+                            payableFolders.map((folder: any) => (
+                                <TouchableOpacity 
+                                    key={folder.id} 
+                                    style={styles.iconWrapper}
+                                    onPress={() => navigation.navigate('FolderDetails', { folderId: folder.id, folderName: folder.name })}
+                                >
+                                    <Image source={require('../assets/folder.png')} style={styles.icon} />
+                                    <Text style={styles.iconText}>{folder.name}</Text>
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noFoldersText}>No Payable Folders</Text>
+                        )}
                     </View>
-                    {/* Add New Plus Icon */}
-                    <TouchableOpacity style={styles.addNewIconWrapper} onPress={toggleModal}>
-                        <Image source={require('../assets/plus.png')} style={styles.plusIcon} />
-                    </TouchableOpacity>
                 </View>
 
                 {/* Receivable Section */}
@@ -62,35 +52,23 @@ const Dues = () => {
                         <View style={styles.line} />
                     </View>
                     <View style={styles.iconRow}>
-                        {/* Folder Icon 1 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Friends</Text>
-                        </TouchableOpacity>
-                        {/* Folder Icon 2 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Relatives</Text>
-                        </TouchableOpacity>
-                        {/* Folder Icon 3 */}
-                        <TouchableOpacity style={styles.iconWrapper}>
-                            <Image source={require('../assets/folder.png')} style={styles.icon} />
-                            <Text style={styles.iconText}>Others</Text>
-                        </TouchableOpacity>
+                        {receivableFolders.length > 0 ? (
+                            receivableFolders.map((folder: any) => (
+                                <TouchableOpacity 
+                                    key={folder.id} 
+                                    style={styles.iconWrapper}
+                                    onPress={() => navigation.navigate('FolderDetails', { folderId: folder.id, folderName: folder.name })}
+                                >
+                                    <Image source={require('../assets/folder.png')} style={styles.icon} />
+                                    <Text style={styles.iconText}>{folder.name}</Text>
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noFoldersText}>No Receivable Folders</Text>
+                        )}
                     </View>
-                    {/* Add New Plus Icon */}
-                    <TouchableOpacity style={styles.addNewIconWrapper} onPress={toggleModal}>
-                        <Image source={require('../assets/plus.png')} style={styles.plusIcon} />
-                    </TouchableOpacity>
                 </View>
             </ScrollView>
-
-            {/* Modal for adding a new folder */}
-            <AddFolderModal 
-                visible={isModalVisible} 
-                onClose={toggleModal} 
-                onAddFolder={handleAddFolder} 
-            />
         </SafeAreaView>
     );
 };
@@ -143,15 +121,10 @@ const styles = StyleSheet.create({
         fontSize: wp('4%'),
         color: '#333333',
     },
-    addNewIconWrapper: {
-        alignSelf: 'flex-start',
-        marginTop: hp('2%'),
-        left: '8%',
-    },
-    plusIcon: {
-        width: wp('15%'),
-        height: wp('15%'),
-        resizeMode: 'contain',
+    noFoldersText: {
+        color: '#717171',
+        fontSize: wp('4%'),
+        textAlign: 'center',
     },
 });
 

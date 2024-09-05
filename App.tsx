@@ -1,13 +1,15 @@
 import React from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'; 
+import { store, persistor } from './src/redux/store';
 import Nav from './src/stack/nav';
-import CalendarScreen from './src/screens/Calendar';
-import Dues from './src/screens/Dues';
-import Paid from './src/screens/Paid';
-import FolderDetails from './src/screens/FolderDetails';
-import { Calendar } from 'react-native-calendars';
-import PaymentDetails from './src/screens/PaymentDetails';
-import PaymentForm from './src/screens/PaymentForm';
 
 export default function App() {
-    return <PaymentForm />;
+    return (
+        <Provider store={store}> 
+            <PersistGate loading={null} persistor={persistor}> 
+                <Nav />
+            </PersistGate>
+        </Provider>
+    );
 }

@@ -1,50 +1,69 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import PaymentsCard from '../cards/PaymentsCard';
+import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import PaymentsCard from '../cards/PaymentsCard';
 
-const FolderDetails = ({ navigation }: any) => {
-    const folderTitle = "Utilities"; // Folder title can be passed via props or hardcoded
+const FolderDetails = ({ navigation, route }: any) => {
+    const { folderId, folderName } = route.params;
+    const folders = useSelector((state: any) => state.folders.folders);
+    const folder = folders.find((folder: any) => folder.id === folderId);
+    const [payments, setPayments] = useState(folder ? folder.payments : []);
+
+    useEffect(() => {
+        if (folder) {
+            setPayments(folder.payments);
+        }
+    }, [folders]);
+
+    const handlePaymentPress = (payment: any) => {
+        navigation.navigate('PaymentDetails', {
+            payment,
+            folderId
+        });
+    };
 
     return (
         <View style={styles.container}>
-            {/* Local Header */}
             <View style={styles.headerContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
                     <Ionicons name="arrow-back" size={wp('7%')} color="#3D3EAA" />
                 </TouchableOpacity>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.headerTitle}>{folderTitle}</Text>
+                    <Text style={styles.headerTitle}>{folderName}</Text>
                 </View>
             </View>
 
-            {/* Sort Button */}
-            <TouchableOpacity style={styles.sortButton}>
-                <Text style={styles.sortText}>Sort</Text>
-                <Image source={require('../assets/sort.png')} style={styles.sortIcon} />
-            </TouchableOpacity>
-            
-            {/* Payments List */}
-            <View style={styles.paymentsContainer}>
-                <PaymentsCard 
-                    title="Electricity bill" 
-                    amount="1500$" 
-                    dueDate="13/2/2024" 
-                    iconSource={require('../assets/icon-red.png')}
-                    paid={false} 
-                />
-                <PaymentsCard 
-                    title="Gas" 
-                    amount="200$" 
-                    dueDate="15/2/2024" 
-                    iconSource={require('../assets/icon-red.png')}
-                    paid={false} 
-                />
-            </View>
+            {payments.length > 0 && (
+                <TouchableOpacity style={styles.sortButton}>
+                    <Text style={styles.sortText}>Sort</Text>
+                    <Image source={require('../assets/sort.png')} style={styles.sortIcon} />
+                </TouchableOpacity>
+            )}
 
-            {/* Floating Add Button */}
-            <TouchableOpacity style={styles.fab}>
+            {payments.length > 0 ? (
+                <View style={styles.paymentsContainer}>
+                    {payments.map((payment: any) => (
+                        <TouchableOpacity
+                            key={payment.id}
+                            onPress={() => handlePaymentPress(payment)}
+                        >
+                            <PaymentsCard
+                                title={payment.title}
+                                amount={payment.amount}
+                                dueDate={payment.dueDate}
+                                iconSource={require('../assets/icon-red.png')}
+                                paid={payment.paid}
+                            />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            ) : (
+                <Text style={styles.noPaymentsText}>No Payments Added Yet</Text>
+            )}
+
+            <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('PaymentForm', { folderId, folderName })}>
                 <Image source={require('../assets/plus.png')} style={styles.fabIcon} />
             </TouchableOpacity>
         </View>
@@ -61,15 +80,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: hp('3%'),
         paddingHorizontal: wp('4%'),
-        position: 'relative', // Ensures title is centrally aligned
+        position: 'relative',
     },
     backIcon: {
         position: 'absolute',
-        left: wp('4%'), // Ensures it stays on the left side
+        left: wp('4%'),
     },
     titleContainer: {
         flex: 1,
-        justifyContent: 'center', // Centers the title
+        justifyContent: 'center',
         alignItems: 'center',
     },
     headerTitle: {
@@ -82,7 +101,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-end',
-        marginRight: wp('4%'), // Position the sort button properly
+        marginRight: wp('4%'),
     },
     sortText: {
         fontSize: wp('4%'),
@@ -97,6 +116,12 @@ const styles = StyleSheet.create({
     paymentsContainer: {
         marginTop: hp('2%'),
         paddingHorizontal: wp('4%'),
+    },
+    noPaymentsText: {
+        fontSize: wp('5%'),
+        color: '#717171',
+        textAlign: 'center',
+        marginTop: hp('10%'),
     },
     fab: {
         position: 'absolute',

@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
     },
     cardText: {
         fontSize: wp('3.5%'),
-        color: '#8A8A8A', // Gray color for text
-        marginTop: hp('1%'), // Space between the button and text
+        color: '#8A8A8A',
+        marginTop: hp('1%'),
     },
 });
 

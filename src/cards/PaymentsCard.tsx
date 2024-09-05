@@ -10,7 +10,7 @@ const PaymentsCard = ({ title, amount, dueDate, iconSource, paid }: any) => {
             </View>
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{title}</Text>
-                <Text style={styles.amount}>{amount}</Text>
+                <Text style={styles.amount}>{amount}$</Text>
                 <Text style={styles.dueDate}>Due Date: {dueDate}</Text>
             </View>
             {paid && (

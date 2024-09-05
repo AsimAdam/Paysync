@@ -1,13 +1,31 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { useSelector } from 'react-redux';
 import Slider from '../components/Slider';
 import NavCard from '../cards/NavCard';
 import PaymentsCard from '../cards/PaymentsCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-
 const Main = ({ navigation }: any) => {
-    
+    // Accessing the folders and payments from Redux store
+    const folders = useSelector((state: any) => state.folders.folders);
+
+    // Extracting recent unpaid payments from all folders
+    const recentPayments = folders.reduce((acc: any[], folder: any) => {
+        const folderPayments = folder.payments
+            .filter((payment: any) => !payment.paid)
+            .map((payment: any) => ({
+                ...payment,
+                folderId: folder.id,
+                folderType: folder.type,
+            }));
+        return acc.concat(folderPayments);
+    }, []);
+
+    // Sort recent payments by due date
+    const sortedPayments = recentPayments
+        .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+        .slice(0, 5);
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -19,23 +37,39 @@ const Main = ({ navigation }: any) => {
                         iconSource={require('../assets/calendar.png')} 
                         onPress={() => navigation.navigate('CalendarScreen')}
                     />
-                    <NavCard title="Dues" iconSource={require('../assets/dues.png')} onPress={() => {}} />
-                    <NavCard title="Paid" iconSource={require('../assets/paid.png')} onPress={() => {}} />
+                    <NavCard 
+                        title="Dues" 
+                        iconSource={require('../assets/dues.png')} 
+                        onPress={() => navigation.navigate('Dues')} 
+                    />
+                    <NavCard 
+                        title="Paid" 
+                        iconSource={require('../assets/paid.png')} 
+                        onPress={() => navigation.navigate('Paid')} 
+                    />
                 </View>
+
                 <Text style={styles.upcomingTitle}>Upcoming Payments</Text>
+
                 <View style={styles.paymentsContainer}>
-                    <PaymentsCard title="Payments for credit card." amount="1500$" dueDate="13/2/2024" iconSource={require('../assets/icon-green.png')} />
-                    <PaymentsCard title="School fee" amount="200$" dueDate="15/2/2024" iconSource={require('../assets/icon-red.png')} />
-                    <PaymentsCard title="Friend have to pay" amount="450$" dueDate="13/2/2024" iconSource={require('../assets/icon-green.png')} />
-                    <PaymentsCard title="Car payment" amount="9800$" dueDate="13/2/2024" />
-                    <PaymentsCard title="Payments for credit card." amount="3500$" dueDate="13/2/2024" iconSource={require('../assets/icon-red.png')} />
+                    {sortedPayments.length > 0 ? (
+                        sortedPayments.map((payment: any) => (
+                            <PaymentsCard
+                                key={payment.id}
+                                title={payment.title}
+                                amount={payment.amount}
+                                dueDate={payment.dueDate}
+                                iconSource={require('../assets/icon-red.png')}
+                            />
+                        ))
+                    ) : (
+                        <Text style={styles.noPaymentsText}>No payments yet</Text>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
     );
 };
-
-
 
 const styles = StyleSheet.create({
     safeArea: {
@@ -65,6 +99,12 @@ const styles = StyleSheet.create({
     },
     paymentsContainer: {
         marginHorizontal: wp('5%'),
+    },
+    noPaymentsText: {
+        fontSize: wp('4.5%'),
+        color: '#717171',
+        textAlign: 'center',
+        marginTop: hp('2%'),
     },
 });
 

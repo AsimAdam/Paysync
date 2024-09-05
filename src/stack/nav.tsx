@@ -4,6 +4,9 @@ import Main from '../screens/Main';
 import CalendarScreen from '../screens/Calendar';
 import Dues from '../screens/Dues';
 import Paid from '../screens/Paid';
+import FolderDetails from '../screens/FolderDetails';
+import PaymentDetails from '../screens/PaymentDetails';
+import PaymentForm from '../screens/PaymentForm';
 
 const Stack = createStackNavigator();
 
@@ -19,17 +22,32 @@ const Nav = () => {
                 <Stack.Screen 
                     name="CalendarScreen" 
                     component={CalendarScreen} 
-                    options={{ title: 'CalendarScreen' }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen 
                     name="Dues" 
                     component={Dues} 
-                    options={{ title: 'Dues' }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen 
                     name="Paid" 
                     component={Paid} 
-                    options={{ title: 'Paid' }}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="FolderDetails" 
+                    component={FolderDetails} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="PaymentDetails" 
+                    component={PaymentDetails} 
+                    options={{ headerShown: false }}
+                />
+                  <Stack.Screen 
+                    name="PaymentForm" 
+                    component={PaymentForm} 
+                    options={{ headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
