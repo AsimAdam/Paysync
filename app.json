@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Due",
+    "name": "PaySync",
     "slug": "Due",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,16 +12,52 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "buildNumber": "1.0.0",
+      "icon": "./assets/icon.png",
+      "bundleIdentifier": "com.due.fin",
+      "infoPlist": {
+        "CFBundleLocalizations": [
+          "en",
+          "fr",
+          
+          "es",
+          "de",
+          "zh",
+          "ar",
+          "ja",
+          "ko",
+          "ru",
+          "pt",
+          "it",
+          "nl",
+          "tr",
+          "sv",
+          "pl",
+          "he",
+          "id",
+          "th",
+          "hi",
+          "vi",
+          "el",
+          "cs",
+          "ro"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4f148cfd-e8c0-4a93-8fad-17e4a0d65152"
+      }
     }
   }
 }
