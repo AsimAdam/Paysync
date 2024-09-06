@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import PaymentsCard from '../cards/PaymentsCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const FolderDetails = ({ navigation, route }: any) => {
     const { folderId, folderName } = route.params;
@@ -38,11 +39,18 @@ const FolderDetails = ({ navigation, route }: any) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
-                    <Ionicons name="arrow-back" size={wp('7%')} color="#3D3EAA" />
-                </TouchableOpacity>
+            <TouchableOpacity
+  onPress={() => {
+    console.log('Back button pressed');
+    navigation.goBack();
+  }}
+  style={styles.backIcon}
+>
+  <Ionicons name="arrow-back" size={wp('7%')} color="#3D3EAA" />
+</TouchableOpacity>
+
                 <View style={styles.titleContainer}>
                     <Text style={styles.headerTitle}>{folderName}</Text>
                 </View>
@@ -81,7 +89,7 @@ const FolderDetails = ({ navigation, route }: any) => {
             <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('PaymentForm', { folderId, folderName })}>
                 <Image source={require('../assets/plus.png')} style={styles.fabIcon} />
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -96,10 +104,13 @@ const styles = StyleSheet.create({
         paddingVertical: hp('3%'),
         paddingHorizontal: wp('4%'),
         position: 'relative',
+        zIndex: 1, 
     },
     backIcon: {
         position: 'absolute',
         left: wp('4%'),
+        zIndex: 10, 
+        padding: 20, 
     },
     titleContainer: {
         flex: 1,

@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         paddingVertical: hp('1%'),
         borderRadius: wp('4%'),
         alignItems: 'center',
-        marginTop: hp('3%'),
+        // marginTop: hp('2%'),
         width: screenWidth * 0.8,
         alignSelf: 'center', 
     },

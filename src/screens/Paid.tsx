@@ -1,32 +1,54 @@
-
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import Header from '../components/Header';
 import PaymentsCard from '../cards/PaymentsCard';
 import { useSelector } from 'react-redux';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const Paid = () => {
+const Paid = ({ navigation }: any) => {
     const folders = useSelector((state: any) => state.folders.folders);
-    
-    // Filter paid payments from all folders
-    const paidPayments = folders.reduce((acc: any[], folder: any) => {
-        const folderPaidPayments = folder.payments.filter((payment: any) => payment.paid === true);
-        return acc.concat(folderPaidPayments);
-    }, []);
+    const [paidPayments, setPaidPayments] = useState<any[]>([]);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); 
+
+    useEffect(() => {
+        // Filter paid payments from all folders
+        const filteredPayments = folders.reduce((acc: any[], folder: any) => {
+            const folderPaidPayments = folder.payments.filter((payment: any) => payment.paid === true);
+            return acc.concat(folderPaidPayments);
+        }, []);
+        setPaidPayments(filteredPayments);
+    }, [folders]);
+
+    // Function to handle sorting payments by date
+    const toggleSortOrder = () => {
+        const sortedPayments = [...paidPayments].sort((a: any, b: any) => {
+            const dateA = new Date(a.dueDate).getTime();
+            const dateB = new Date(b.dueDate).getTime();
+            return sortOrder === 'asc' ? dateB - dateA : dateA - dateB;
+        });
+
+        setPaidPayments(sortedPayments);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {/* Header */}
             <Header
                 title="Paid"
                 subtitle="Your paid amount showcase to keep you updated"
-                onBackPress={() => {}}
+                onBackPress={() => {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.navigate('Main');
+                    }
+                }}
             />
 
             {/* Sort Button */}
             {paidPayments.length > 0 && (
-                <TouchableOpacity style={styles.sortButton}>
+                <TouchableOpacity style={styles.sortButton} onPress={toggleSortOrder}>
                     <Text style={styles.sortText}>Sort</Text>
                     <Image source={require('../assets/sort.png')} style={styles.sortIcon} />
                 </TouchableOpacity>
@@ -49,7 +71,7 @@ const Paid = () => {
                     <Text style={styles.noPaymentsText}>No Paid Payments Yet</Text>
                 )}
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -63,7 +85,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center',
         marginVertical: hp('2%'),
-        paddingHorizontal: wp('4%'), // Adjusted padding
+        paddingHorizontal: wp('4%'),
         top: '5%',
     },
     sortText: {
@@ -79,7 +101,7 @@ const styles = StyleSheet.create({
     },
     paymentsContainer: {
         marginTop: hp('1%'),
-        paddingHorizontal: wp('4%'), // Adjusted padding for proper alignment
+        paddingHorizontal: wp('4%'),
     },
     noPaymentsText: {
         color: '#717171',
@@ -90,3 +112,6 @@ const styles = StyleSheet.create({
 });
 
 export default Paid;
+
+
+

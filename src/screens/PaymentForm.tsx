@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
         fontSize: wp('4%'),
         color: '#000',
         fontWeight: 'bold',
-        marginBottom: hp('1%'),
+        margin: hp('2%'),
         alignSelf: 'center'
     },
     dateInput: {

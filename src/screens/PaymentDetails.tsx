@@ -5,31 +5,33 @@ import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useDispatch } from 'react-redux';
 import { updatePaymentStatus } from '../redux/actions';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PaymentDetails = ({ navigation, route }: any) => {
     const { payment, folderId } = route.params;
     const [isPaid, setIsPaid] = useState(payment.paid);
-    const [installmentsPaid, setInstallmentsPaid] = useState(payment.installmentsPaid || 0); 
+    const [installmentsPaid, setInstallmentsPaid] = useState(payment.installmentsPaid || 1); 
     const dispatch = useDispatch();
 
-    // Calculate passed installments based on current date
     useEffect(() => {
         const calculateInstallmentsPaid = () => {
             if (payment.installmentMonths) {
                 const today = new Date();
                 const dueDate = new Date(payment.dueDate);
                 const monthsPassed = Math.floor(
-                    (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24 * 30) 
+                    (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
                 );
-
-                const installmentsPaid = Math.min(monthsPassed, payment.installmentMonths); 
+    
+                // Ensure installmentsPaid doesn't go below 0
+                const installmentsPaid = Math.max(0, Math.min(monthsPassed, payment.installmentMonths)); 
                 console.log("Installments Paid: ", installmentsPaid);
                 setInstallmentsPaid(installmentsPaid);
             }
         };
-
+    
         calculateInstallmentsPaid();
     }, [payment]);
+    
 
     const toggleStatus = () => {
         const updatedPayment = { ...payment, paid: !isPaid, installmentsPaid };
@@ -39,7 +41,7 @@ const PaymentDetails = ({ navigation, route }: any) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <LinearGradient colors={['#78C4FA', '#3D3EAA']} style={styles.headerContainer}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
                     <Ionicons name="arrow-back" size={wp('7%')} color="white" />
@@ -67,7 +69,7 @@ const PaymentDetails = ({ navigation, route }: any) => {
             </View>
 
             <Text style={styles.description}>{payment.description}</Text>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -94,6 +96,7 @@ const styles = StyleSheet.create({
         fontSize: wp('6%'),
         fontWeight: 'bold',
         marginTop: hp('1%'),
+        bottom: hp('2%'),
     },
     amount: {
         color: 'white',
