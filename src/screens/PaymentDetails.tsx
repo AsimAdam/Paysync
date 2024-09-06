@@ -52,6 +52,7 @@ const PaymentDetails = ({ navigation, route }: any) => {
                     <Text style={styles.statusText}>{isPaid ? 'Paid' : 'Payable'}</Text>
                     <Ionicons name="chevron-down" size={wp('4%')} color="white" />
                 </TouchableOpacity>
+                
             </LinearGradient>
 
             <View style={styles.installmentContainer}>
@@ -159,3 +160,8 @@ const styles = StyleSheet.create({
 });
 
 export default PaymentDetails;
+
+
+
+
+

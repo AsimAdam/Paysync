@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import moment from 'moment';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const CalendarScreen = () => {
+const CalendarScreen = ({ navigation }: any) => {
     const folders = useSelector((state: any) => state.folders.folders);
 
     // State for the modal popup
@@ -59,11 +59,12 @@ const CalendarScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header
+          <Header
                 title="Calendar"
                 subtitle="Select the date you want to get a reminder, and you can see your upcoming payment"
-                onBackPress={() => {}}
+                onBackPress={() => navigation.goBack()}
             />
+
 
             <View style={styles.calendarContainer}>
                 <Calendar

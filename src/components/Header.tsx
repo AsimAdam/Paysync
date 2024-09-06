@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     subtitle: {
-        color: '#71B3F0',
+        color: '#CCCCFF',
         fontSize: wp('4%'),
         textAlign: 'center',
         marginTop: hp('0.9%'),

@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { addPayment } from '../redux/actions';
 
 const PaymentForm = ({ navigation, route }: any) => {
+    
     const { folderId, folderName } = route.params;
 
     const [title, setTitle] = useState('');

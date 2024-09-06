@@ -7,13 +7,19 @@ import Paid from '../screens/Paid';
 import FolderDetails from '../screens/FolderDetails';
 import PaymentDetails from '../screens/PaymentDetails';
 import PaymentForm from '../screens/PaymentForm';
+import Splash from '../screens/Splash';
 
 const Stack = createStackNavigator();
 
 const Nav = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Main">
+            <Stack.Navigator initialRouteName="Splash">
+                <Stack.Screen 
+                    name="Splash" 
+                    component={Splash} 
+                    options={{ headerShown: false }} 
+                />
                 <Stack.Screen 
                     name="Main" 
                     component={Main} 
@@ -44,7 +50,7 @@ const Nav = () => {
                     component={PaymentDetails} 
                     options={{ headerShown: false }}
                 />
-                  <Stack.Screen 
+                <Stack.Screen 
                     name="PaymentForm" 
                     component={PaymentForm} 
                     options={{ headerShown: false }}
@@ -55,5 +61,6 @@ const Nav = () => {
 };
 
 export default Nav;
+
 
 

@@ -10,12 +10,25 @@ const FolderDetails = ({ navigation, route }: any) => {
     const folders = useSelector((state: any) => state.folders.folders);
     const folder = folders.find((folder: any) => folder.id === folderId);
     const [payments, setPayments] = useState(folder ? folder.payments : []);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
         if (folder) {
             setPayments(folder.payments);
         }
     }, [folders]);
+
+    // Function to handle sorting payments by date
+    const toggleSortOrder = () => {
+        const sortedPayments = [...payments].sort((a: any, b: any) => {
+            const dateA = new Date(a.dueDate).getTime();
+            const dateB = new Date(b.dueDate).getTime();
+            return sortOrder === 'asc' ? dateB - dateA : dateA - dateB;
+        });
+
+        setPayments(sortedPayments);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    };
 
     const handlePaymentPress = (payment: any) => {
         navigation.navigate('PaymentDetails', {
@@ -36,8 +49,10 @@ const FolderDetails = ({ navigation, route }: any) => {
             </View>
 
             {payments.length > 0 && (
-                <TouchableOpacity style={styles.sortButton}>
-                    <Text style={styles.sortText}>Sort</Text>
+                <TouchableOpacity style={styles.sortButton} onPress={toggleSortOrder}>
+                    <Text style={styles.sortText}>
+                        Sort
+                    </Text>
                     <Image source={require('../assets/sort.png')} style={styles.sortIcon} />
                 </TouchableOpacity>
             )}
@@ -101,12 +116,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-end',
-        marginRight: wp('4%'),
+        marginRight: wp('5%'),
+        top: wp('3%'),
     },
     sortText: {
         fontSize: wp('4%'),
-        color: '#717171',
+        color: '#000',
         marginRight: wp('1%'),
+        fontWeight: '800'
     },
     sortIcon: {
         width: wp('5%'),

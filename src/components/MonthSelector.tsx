@@ -42,12 +42,12 @@ const styles = StyleSheet.create({
         height: wp('12%'),
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: wp('6%'), // Circular shape
-        backgroundColor: '#F0F0F0', // Default background
+        borderRadius: wp('6%'),
+        backgroundColor: '#F0F0F0',
         marginVertical: hp('1%'),
     },
     selectedMonth: {
-        backgroundColor: '#2575FC', // Highlighted color
+        backgroundColor: '#A6A6FF',
     },
     monthText: {
         fontSize: wp('4%'),

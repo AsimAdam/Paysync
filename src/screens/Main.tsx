@@ -60,12 +60,18 @@ const Main = ({ navigation }: any) => {
                                 amount={payment.amount}
                                 dueDate={payment.dueDate}
                                 iconSource={require('../assets/icon-red.png')}
+                                onPress={() => navigation.navigate('PaymentDetails', { 
+                                    payment, 
+                                    folderId: payment.folderId 
+                                })}
                             />
                         ))
                     ) : (
                         <Text style={styles.noPaymentsText}>No payments yet</Text>
                     )}
                 </View>
+
+
             </ScrollView>
         </SafeAreaView>
     );
@@ -92,7 +98,7 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     upcomingTitle: {
-        fontSize: wp('5%'),
+        fontSize: wp('4%'),
         fontWeight: 'bold',
         marginHorizontal: wp('5%'),
         marginVertical: hp('2%'),
