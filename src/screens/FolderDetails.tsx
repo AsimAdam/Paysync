@@ -32,11 +32,19 @@ const FolderDetails = ({ navigation, route }: any) => {
     };
 
     const handlePaymentPress = (payment: any) => {
-        navigation.navigate('PaymentDetails', {
-            payment,
-            folderId
-        });
+        if (folder.type === 'payable') {
+            navigation.navigate('PayableDetails', {
+                payment,
+                folderId,
+            });
+        } else if (folder.type === 'receivable') {
+            navigation.navigate('ReceivableDetails', {
+                payment,
+                folderId,
+            });
+        }
     };
+    
 
     return (
         <SafeAreaView style={styles.container}>

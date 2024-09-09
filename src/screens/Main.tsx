@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import Slider from '../components/Slider';
 import NavCard from '../cards/NavCard';
@@ -25,7 +25,21 @@ const Main = ({ navigation }: any) => {
     // Sort recent payments by due date
     const sortedPayments = recentPayments
         .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-        .slice(0, 5);
+        .slice(0, 5); 
+
+    // Handle payment card press - based on folder type (payable or receivable)
+    const handlePaymentPress = (payment: any) => {
+        const folder = folders.find((folder: any) =>
+            folder.payments.some((folderPayment: any) => folderPayment.id === payment.id)
+        );
+        if (folder) {
+            if (folder.type === 'payable') {
+                navigation.navigate('PayableDetails', { payment, folderId: folder.id });
+            } else if (folder.type === 'receivable') {
+                navigation.navigate('ReceivableDetails', { payment, folderId: folder.id });
+            }
+        }
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -54,24 +68,22 @@ const Main = ({ navigation }: any) => {
                 <View style={styles.paymentsContainer}>
                     {sortedPayments.length > 0 ? (
                         sortedPayments.map((payment: any) => (
-                            <PaymentsCard
+                            <TouchableOpacity
                                 key={payment.id}
-                                title={payment.title}
-                                amount={payment.amount}
-                                dueDate={payment.dueDate}
-                                iconSource={require('../assets/icon-red.png')}
-                                onPress={() => navigation.navigate('PaymentDetails', { 
-                                    payment, 
-                                    folderId: payment.folderId 
-                                })}
-                            />
+                                onPress={() => handlePaymentPress(payment)}
+                            >
+                                <PaymentsCard
+                                    title={payment.title}
+                                    amount={`${payment.amount}$`}
+                                    dueDate={payment.dueDate}
+                                    iconSource={require('../assets/icon-red.png')}
+                                />
+                            </TouchableOpacity>
                         ))
                     ) : (
                         <Text style={styles.noPaymentsText}>No payments yet</Text>
                     )}
                 </View>
-
-
             </ScrollView>
         </SafeAreaView>
     );

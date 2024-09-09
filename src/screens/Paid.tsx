@@ -31,6 +31,19 @@ const Paid = ({ navigation }: any) => {
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     };
 
+    const handlePaymentPress = (payment: any) => {
+        const folder = folders.find((folder: any) =>
+            folder.payments.some((folderPayment: any) => folderPayment.id === payment.id)
+        );
+        if (folder) {
+            if (folder.type === 'payable') {
+                navigation.navigate('PayableDetails', { payment, folderId: folder.id });
+            } else if (folder.type === 'receivable') {
+                navigation.navigate('ReceivableDetails', { payment, folderId: folder.id });
+            }
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -58,14 +71,18 @@ const Paid = ({ navigation }: any) => {
             <View style={styles.paymentsContainer}>
                 {paidPayments.length > 0 ? (
                     paidPayments.map((payment: any) => (
-                        <PaymentsCard 
+                        <TouchableOpacity
                             key={payment.id}
-                            title={payment.title} 
-                            amount={`${payment.amount}$`} 
-                            dueDate={payment.dueDate} 
-                            iconSource={require('../assets/icon-green.png')} 
-                            paid={true} 
-                        />
+                            onPress={() => handlePaymentPress(payment)}
+                        >
+                            <PaymentsCard 
+                                title={payment.title} 
+                                amount={`${payment.amount}$`} 
+                                dueDate={payment.dueDate} 
+                                iconSource={require('../assets/icon-green.png')} 
+                                paid={true} 
+                            />
+                        </TouchableOpacity>
                     ))
                 ) : (
                     <Text style={styles.noPaymentsText}>No Paid Payments Yet</Text>
@@ -112,6 +129,3 @@ const styles = StyleSheet.create({
 });
 
 export default Paid;
-
-
-
