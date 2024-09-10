@@ -9,7 +9,7 @@ const Splash = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('Main');
+      navigation.navigate('CreateProfile');
     }, 3000);
     
     return () => clearTimeout(timer);

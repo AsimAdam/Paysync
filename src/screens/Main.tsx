@@ -1,12 +1,33 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import Slider from '../components/Slider';
 import NavCard from '../cards/NavCard';
 import PaymentsCard from '../cards/PaymentsCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { avatars } from '../controllers/avatars';
 
 const Main = ({ navigation }: any) => {
+
+    const [userName, setUserName] = useState<any>(null);
+    const [userAvatar, setUserAvatar] = useState<any>(null);
+
+    // Fetching the saved user profile data from AsyncStorage
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const name = await AsyncStorage.getItem('userName');
+                const avatarIndex = await AsyncStorage.getItem('selectedAvatar');
+                if (name) setUserName(name);
+                if (avatarIndex) setUserAvatar(avatars[parseInt(avatarIndex)]);
+            } catch (error) {
+                console.error('Error fetching profile data:', error);
+            }
+        };
+        fetchProfileData();
+    }, []);
+
     // Accessing the folders and payments from Redux store
     const folders = useSelector((state: any) => state.folders.folders);
 
@@ -43,6 +64,16 @@ const Main = ({ navigation }: any) => {
 
     return (
         <SafeAreaView style={styles.safeArea}>
+            {/* Profile Section */}
+            <View style={styles.profileContainer}>
+                {userAvatar && (
+                    <Image source={userAvatar} style={styles.avatar} />
+                )}
+                {userName && (
+                    <Text style={styles.userName}>Hello, {userName}</Text>
+                )}
+            </View>
+
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 <Slider />
                 <View style={styles.navContainer}>
@@ -93,6 +124,25 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: '#F8F8F8',
+    },
+    profileContainer: {
+        position: 'absolute',
+        top: hp('2%'),
+        right: wp('5%'),
+        flexDirection: 'column',
+        alignItems: 'center',
+        zIndex: 100
+    },
+    avatar: {
+        width: wp('15%'),
+        height: wp('15%'),
+        borderRadius: wp('7.5%'),
+        marginBottom: hp('1%'),
+    },
+    userName: {
+        fontSize: wp('4%'),
+        color: '#000',
+        fontWeight: 'bold',
     },
     container: {
         flex: 1,
