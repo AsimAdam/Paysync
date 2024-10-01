@@ -1,17 +1,17 @@
 import CryptoJS from 'react-native-crypto-js';
 
 export const decryptUrl = () => {
-    const QSCN_ID = process.env.QSCN_ID;
-    const QSCN_KEY = process.env.QSCN_KEY;
-    const QSCN_IV = process.env.QSCN_IV;
+    const PYSNYC_ID = process.env.PYSNYC_ID;
+    const PYSNYC_KEY = process.env.PYSNYC_KEY;
+    const PYSNYC_IV = process.env.PYSNYC_IV;
 
     try {
         // Convert key and IV to correct format
-        const key = CryptoJS.enc.Hex.parse(QSCN_KEY);
-        const iv = CryptoJS.enc.Hex.parse(QSCN_IV);
+        const key = CryptoJS.enc.Hex.parse(PYSNYC_KEY);
+        const iv = CryptoJS.enc.Hex.parse(PYSNYC_IV);
 
-        // The QSCN_ID may be a Base64 encoded string, so we should decode it first
-        const encryptedHexStr = CryptoJS.enc.Hex.parse(QSCN_ID);
+        // The PYSNYC_ID may be a Base64 encoded string, so we should decode it first
+        const encryptedHexStr = CryptoJS.enc.Hex.parse(PYSNYC_ID);
         const encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
 
         // Decrypt the data

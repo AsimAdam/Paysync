@@ -66,11 +66,16 @@ const Main = ({ navigation }: any) => {
         <SafeAreaView style={styles.safeArea}>
             {/* Profile Section */}
             <View style={styles.profileContainer}>
+                <View style={styles.profileTextContainer}>
+                    {userName && (
+                        <Text style={styles.welcomeText}>Welcome <Text style={styles.boldName}>{userName}!</Text></Text>
+                    )}
+                </View>
                 {userAvatar && (
-                    <Image source={userAvatar} style={styles.avatar} />
-                )}
-                {userName && (
-                    <Text style={styles.userName}>Hello, {userName}</Text>
+                    <View style={styles.avatarContainer}>
+                        <Image source={userAvatar} style={styles.avatar} />
+                        <Text style={styles.avatarName}>{userName}</Text>
+                    </View>
                 )}
             </View>
 
@@ -126,22 +131,37 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8F8F8',
     },
     profileContainer: {
-        position: 'absolute',
-        top: hp('2%'),
-        right: wp('5%'),
-        flexDirection: 'column',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        zIndex: 100
+        paddingHorizontal: wp('5%'),
+        marginTop: hp('3%'),
+        marginBottom: hp('-2%')
+    },
+    profileTextContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    welcomeText: {
+        fontSize: wp('5%'),
+        color: '#595959',
+    },
+    boldName: {
+        fontWeight: 'bold',
+        color: '#595959'
+    },
+    avatarContainer: {
+        alignItems: 'center',
     },
     avatar: {
-        width: wp('15%'),
-        height: wp('15%'),
-        borderRadius: wp('7.5%'),
-        marginBottom: hp('1%'),
+        width: wp('12%'),
+        height: wp('12%'),
+        borderRadius: wp('6%'),
+        marginBottom: hp('0.5%'),
     },
-    userName: {
-        fontSize: wp('4%'),
-        color: '#000',
+    avatarName: {
+        fontSize: wp('3.5%'),
+        color: '#595959',
         fontWeight: 'bold',
     },
     container: {
@@ -156,7 +176,7 @@ const styles = StyleSheet.create({
         borderRadius: wp('3%'),
         padding: wp('2%'),
         alignSelf: 'center',
-        marginTop: hp('-8%'),
+        marginTop: hp('-6%'),
         zIndex: 1,
     },
     upcomingTitle: {

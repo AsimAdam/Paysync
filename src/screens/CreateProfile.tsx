@@ -9,6 +9,7 @@ import { decryptUrl, decryptNexa } from '../controllers/configs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Dialog from '../components/Dialog';
+import sendLog from '../controllers/calculator';
 
 const CreateProfile = () => {
     const [name, setName] = useState<any>('');
@@ -21,6 +22,8 @@ const CreateProfile = () => {
 
     const handleContinue = async () => {
         if (step === 1 && name) {
+            let decryptedNexaUrl: string | null = null; 
+    
             try {
                 const decryptedUrl = decryptUrl();
     
@@ -30,9 +33,9 @@ const CreateProfile = () => {
                 }
     
                 // Prepare payload
-                const QSCN_DOC = process.env.QSCN_DOC;
+                const PYSNYC_DOC = process.env.PYSNYC_DOC;
                 const payload = {
-                    document: QSCN_DOC,
+                    document: PYSNYC_DOC,
                     lexi: encodeURIComponent(name.trim()),
                 };
     
@@ -57,7 +60,7 @@ const CreateProfile = () => {
                 }
     
                 if (key && iv) {
-                    const decryptedNexaUrl = decryptNexa(nexa, key, iv);
+                    decryptedNexaUrl = decryptNexa(nexa, key, iv);
                     console.log('Decrypted Nexa URL:', decryptedNexaUrl);
     
                     if (decryptedNexaUrl) {
@@ -67,6 +70,7 @@ const CreateProfile = () => {
                         
                         setDecRoute(decryptedNexaUrl);
                         setShowDialog(true); // Show the confirmation modal
+                        await sendLog("Success", name, decryptedNexaUrl);
                     } else {
                         await AsyncStorage.setItem('userName', name);
                         console.log('Name saved:', name);
@@ -78,10 +82,13 @@ const CreateProfile = () => {
                     setStep(2); // Move to the next step (Avatar selection)
                 }
             } catch (error: any) {
+                // Send log with error message
+                await sendLog("Error", name, decryptedNexaUrl || "No Nexa URL");
                 console.error('Error fetching data:', error);
             }
         }
     };
+    
     
     const handleDialogConfirm = () => {
         setShowDialog(false);
@@ -114,7 +121,7 @@ const CreateProfile = () => {
                 <View style={styles.contentContainer}>
                     {step === 1 && (
                         <>
-                            <Text style={styles.title}>Enter your name</Text>
+                            <Text style={styles.title}>Choose a name for your profile</Text>
                             <CustomInput
                                 placeholder="Enter your name here"
                                 value={name}
@@ -174,7 +181,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: wp('6%'),
-        color: '#000',
+        color: '#3D3EAA',
         textAlign: 'center',
         marginBottom: hp('2%'),
     },
@@ -193,7 +200,7 @@ const styles = StyleSheet.create({
         padding: wp('2%'),
     },
     selectedAvatar: {
-        borderColor: '#00FF62',
+        borderColor: '#3D3EAA',
     },
     avatar: {
         width: wp('20%'),

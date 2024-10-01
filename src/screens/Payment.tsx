@@ -7,7 +7,10 @@ const Payments = ({ route }: any) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <WebView source={{ uri: url }} />
+            <WebView 
+            source={{ uri: url }} 
+            bounces={false} 
+            />
         </SafeAreaView>
     );
 };

@@ -4,7 +4,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/redux/store';
 import Nav from './src/stack/nav';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Payments from './src/screens/Payment';
+
 
 export default function App() {
     const [initialRoute, setInitialRoute] = useState<string | null>(null);
