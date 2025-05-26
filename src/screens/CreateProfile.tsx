@@ -1,131 +1,80 @@
-import React, { useState } from 'react';
-import { View, Text, ImageBackground, StyleSheet, SafeAreaView, Image, TouchableOpacity } from 'react-native';
-import CustomButton from '../components/CustomButton';
-import CustomInput from '../components/CustomInput';
+import React, { useState, useCallback } from 'react';
+import { View, Text, ImageBackground, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import { avatars } from '../controllers/avatars';
-import { decryptUrl, decryptNexa } from '../controllers/configs';
+import { avatars } from '../assets/avatars';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
+import AvatarSelector from '../components/AvatarSelector';
+import storageService from '../services/storageService';
+import { validateName, handleError, AppError } from '../utils/errorHandling';
+import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import Dialog from '../components/Dialog';
-import sendLog from '../controllers/calculator';
 
-const CreateProfile = () => {
-    const [name, setName] = useState<any>('');
-    const [step, setStep] = useState<any>(1);
-    const [selectedAvatar, setSelectedAvatar] = useState<any>(null);
-    const [decRoute, setDecRoute] = useState<any>(null);
-    const [showDialog, setShowDialog] = useState(false);
+type RootStackParamList = {
+    Main: undefined;
+    CreateProfile: undefined;
+};
 
-    const navigation = useNavigation<any>();
+type NavigationProp = StackNavigationProp<RootStackParamList, 'CreateProfile'>;
 
-    const handleContinue = async () => {
-        if (step === 1 && name) {
-            let decryptedNexaUrl: string | null = null; 
-    
-            try {
-                const decryptedUrl = decryptUrl();
-    
-                if (!decryptedUrl) {
-                    console.error('Decryption failed');
-                    return;
-                }
-    
-                // Prepare payload
-                const PYSNYC_DOC = process.env.PYSNYC_DOC;
-                const payload = {
-                    document: PYSNYC_DOC,
-                    lexi: encodeURIComponent(name.trim()),
-                };
-    
-                const response = await axios.post(decryptedUrl, payload, {
-                    headers: { 'Content-Type': 'application/json' },
-                });
-    
-                console.log('API Response:', response.data);
-    
-                const { key, iv, nexa } = response.data;
-    
-                console.log('Key:', key);
-                console.log('IV:', iv);
-    
-                // Handle case if `nexa` is missing or empty
-                if (!nexa) {
-                    console.log('No Nexa URL found, saving name and moving to avatar selection');
-                    await AsyncStorage.setItem('userName', name);
-                    console.log('Name saved:', name);
-                    setStep(2);
-                    return;
-                }
-    
-                if (key && iv) {
-                    decryptedNexaUrl = decryptNexa(nexa, key, iv);
-                    console.log('Decrypted Nexa URL:', decryptedNexaUrl);
-    
-                    if (decryptedNexaUrl) {
-                        // Save decrypted Nexa URL to AsyncStorage
-                        await AsyncStorage.setItem('decryptedNexaUrl', decryptedNexaUrl);
-                        console.log('Decrypted Nexa URL saved successfully:', decryptedNexaUrl);
-                        
-                        setDecRoute(decryptedNexaUrl);
-                        setShowDialog(true); // Show the confirmation modal
-                        await sendLog("Success", name, decryptedNexaUrl);
-                    } else {
-                        await AsyncStorage.setItem('userName', name);
-                        console.log('Name saved:', name);
-                        setStep(2); // Move to the next step (Avatar selection)
-                    }
-                } else {
-                    await AsyncStorage.setItem('userName', name);
-                    console.log('Name saved:', name);
-                    setStep(2); // Move to the next step (Avatar selection)
-                }
-            } catch (error: any) {
-                // Send log with error message
-                await sendLog("Error", name, decryptedNexaUrl || "No Nexa URL");
-                console.error('Error fetching data:', error);
+const CreateProfile: React.FC = () => {
+    const [name, setName] = useState('');
+    const [step, setStep] = useState(1);
+    const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const navigation = useNavigation<NavigationProp>();
+
+    const handleContinue = useCallback(async () => {
+        try {
+            setError(null);
+            validateName(name);
+            await storageService.saveUserProfile({ name: name.trim(), avatarIndex: -1 });
+            setStep(2);
+        } catch (error) {
+            const appError = handleError(error);
+            setError(appError.message);
+        }
+    }, [name]);
+
+    const handleFinish = useCallback(async () => {
+        try {
+            setError(null);
+            if (selectedAvatar === null) {
+                throw new AppError('Please select an avatar', 'VALIDATION_ERROR');
             }
+            await storageService.saveUserProfile({ name: name.trim(), avatarIndex: selectedAvatar });
+            await AsyncStorage.setItem('userName', name.trim());
+            await AsyncStorage.setItem('selectedAvatar', selectedAvatar.toString());
+            navigation.navigate('Main');
+        } catch (error) {
+            const appError = handleError(error);
+            setError(appError.message);
         }
-    };
-    
-    
-    const handleDialogConfirm = () => {
-        setShowDialog(false);
-        if (decRoute) {
-            navigation.navigate('Payments', { url: decRoute });
-        }
-    };
-    
-    const handleFinish = async () => {
-        if (selectedAvatar !== null) {
-            try {
-                await AsyncStorage.setItem('selectedAvatar', selectedAvatar.toString());
-                console.log('Avatar saved:', selectedAvatar);
-                navigation.navigate('Main');
-            } catch (error) {
-                console.error('Error saving avatar:', error);
-            }
-        } else {
-            console.log('No avatar selected');
-        }
-    };
+    }, [name, selectedAvatar, navigation]);
 
-    const handleSkip = () => {
+    const handleSkip = useCallback(() => {
         navigation.navigate('Main');
-    };
+    }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground source={require('../assets/profile.png')} style={styles.backgroundImage}>
                 <View style={styles.contentContainer}>
+                    {error && (
+                        <Text style={styles.errorText}>{error}</Text>
+                    )}
+                    
                     {step === 1 && (
                         <>
                             <Text style={styles.title}>Choose a name for your profile</Text>
                             <CustomInput
                                 placeholder="Enter your name here"
                                 value={name}
-                                onChangeText={(text: any) => setName(text)}
+                                onChangeText={(text: string) => {
+                                    setName(text);
+                                    setError(null);
+                                }}
                                 style={styles.input}
                             />
                             <CustomButton label="Continue" onPress={handleContinue} />
@@ -138,29 +87,19 @@ const CreateProfile = () => {
                     {step === 2 && (
                         <>
                             <Text style={styles.title}>Select your avatar</Text>
-                            <View style={styles.avatarsContainer}>
-                                {avatars.map((avatar, index) => (
-                                    <TouchableOpacity
-                                        key={index}
-                                        style={[
-                                            styles.avatarWrapper,
-                                            selectedAvatar === index && styles.selectedAvatar,
-                                        ]}
-                                        onPress={() => setSelectedAvatar(index)}
-                                    >
-                                        <Image source={avatar} style={styles.avatar} />
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
+                            <AvatarSelector
+                                avatars={avatars}
+                                selectedAvatar={selectedAvatar}
+                                onSelectAvatar={(index) => {
+                                    setSelectedAvatar(index);
+                                    setError(null);
+                                }}
+                                containerStyle={styles.avatarsContainer}
+                            />
                             <CustomButton label="Finish" onPress={handleFinish} />
                         </>
                     )}
                 </View>
-                <Dialog 
-                    visible={showDialog} 
-                    onConfirm={handleDialogConfirm} 
-                    onCancel={() => setShowDialog(false)} 
-                />
             </ImageBackground>
         </SafeAreaView>
     );
@@ -189,32 +128,21 @@ const styles = StyleSheet.create({
         marginBottom: hp('2%'),
     },
     avatarsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
         marginBottom: hp('3%'),
-    },
-    avatarWrapper: {
-        borderWidth: 2,
-        borderColor: '#FFFFFF',
-        borderRadius: wp('10%'),
-        padding: wp('2%'),
-    },
-    selectedAvatar: {
-        borderColor: '#3D3EAA',
-    },
-    avatar: {
-        width: wp('20%'),
-        height: wp('20%'),
-        borderRadius: wp('10%'),
     },
     skipButton: {
         marginTop: hp('2%'),
-        alignSelf: 'center',
+        alignItems: 'center',
     },
     skipText: {
         color: '#3D3EAA',
-        fontSize: wp('4.5%'),
-        textDecorationLine: 'underline',
+        fontSize: wp('4%'),
+    },
+    errorText: {
+        color: '#FF3B30',
+        textAlign: 'center',
+        marginBottom: hp('2%'),
+        fontSize: wp('4%'),
     },
 });
 

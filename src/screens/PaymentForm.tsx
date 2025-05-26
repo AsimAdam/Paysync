@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -7,10 +7,14 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch } from 'react-redux';
-import { addPayment } from '../redux/actions';
+import { addPayment } from '../global/actions';
 
-const PaymentForm = ({ navigation, route }: any) => {
-    
+interface PaymentFormProps {
+    navigation: any;
+    route: any;
+}
+
+const PaymentForm: React.FC<PaymentFormProps> = ({ navigation, route }) => {
     const { folderId, folderName } = route.params;
 
     const [title, setTitle] = useState('');
@@ -55,132 +59,139 @@ const PaymentForm = ({ navigation, route }: any) => {
             Alert.alert('Error', 'Please fill in all required fields');
             return;
         }
-    
-        const newPayment: any = {
-            id: Date.now().toString(),
-            title,
-            amount,
-            dueDate: dueDate.toISOString().split('T')[0],
-            description,
-            type: paymentType,
-            paid: false,
-            installmentMonths: paymentMethod === 'Installments' ? installments : null,
-            installmentsPaid: 0,
-            createdDate: new Date().toISOString(),
-        };
-    
-        // Dispatch the action to add the payment to the folder
-        dispatch(addPayment(newPayment, folderId));
-    
-        console.log('Added payment:', newPayment);
-    
-        // Navigate back to the folder details screen after saving
-        navigation.goBack();
+        try {
+            const newPayment: any = {
+                id: Date.now().toString(),
+                title,
+                amount,
+                dueDate: dueDate.toISOString().split('T')[0],
+                description,
+                type: paymentType,
+                paid: false,
+                installmentMonths: paymentMethod === 'Installments' ? installments : null,
+                installmentsPaid: 0,
+                createdDate: new Date().toISOString(),
+            };
+            dispatch(addPayment(newPayment, folderId));
+            navigation.goBack();
+        } catch (error) {
+            Alert.alert('Error', 'Something went wrong while saving the payment.');
+        }
     };
-    
-    
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ScrollView contentContainerStyle={styles.container}>
-                {/* Header */}
-                <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
-                        <Ionicons name="arrow-back" size={wp('7%')} color="#3D3EAA" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Input Due</Text>
-                </View>
+            {/* Custom Header restored */}
+            <View style={styles.headerContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backIcon}>
+                    <Ionicons name="arrow-back" size={wp('7%')} color="#3D3EAA" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Input Due</Text>
+            </View>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? hp('2%') : 0}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.container, { paddingBottom: hp('8%') }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Title Input */}
+                    <Text style={styles.labelLeft}>Title</Text>
+                    <CustomInput placeholder="Title" value={title} onChangeText={setTitle} />
 
-                {/* Title Input */}
-                <CustomInput placeholder="Title" value={title} onChangeText={setTitle} />
+                    {/* Payment Type Dropdown */}
+                    <Text style={styles.labelLeft}>Type</Text>
+                    <DropDownPicker
+                        open={openPaymentType}
+                        value={paymentType}
+                        items={paymentTypeData}
+                        setOpen={setOpenPaymentType}
+                        setValue={setPaymentType}
+                        placeholder="Select Payment Type"
+                        style={styles.dropdown}
+                        dropDownContainerStyle={styles.dropDownContainer}
+                        zIndex={5000}
+                    />
 
-                {/* Payment Type Dropdown */}
-                <DropDownPicker
-                    open={openPaymentType}
-                    value={paymentType}
-                    items={paymentTypeData}
-                    setOpen={setOpenPaymentType}
-                    setValue={setPaymentType}
-                    placeholder="Select Payment Type"
-                    style={styles.dropdown}
-                    dropDownContainerStyle={styles.dropDownContainer}
-                    zIndex={5000}
-                />
+                    {/* Payment Method Dropdown */}
+                    <Text style={styles.labelLeft}>Payment Method</Text>
+                    <DropDownPicker
+                        open={openPaymentMethod}
+                        value={paymentMethod}
+                        items={paymentMethodData}
+                        setOpen={setOpenPaymentMethod}
+                        setValue={setPaymentMethod}
+                        placeholder="Select Payment Method"
+                        style={styles.dropdown}
+                        dropDownContainerStyle={styles.dropDownContainer}
+                        zIndex={4000}
+                    />
 
-                {/* Payment Method Dropdown */}
-                <DropDownPicker
-                    open={openPaymentMethod}
-                    value={paymentMethod}
-                    items={paymentMethodData}
-                    setOpen={setOpenPaymentMethod}
-                    setValue={setPaymentMethod}
-                    placeholder="Select Payment Method"
-                    style={styles.dropdown}
-                    dropDownContainerStyle={styles.dropDownContainer}
-                    zIndex={4000}
-                />
-
-                {/* Conditional Rendering based on Installments */}
-                {paymentMethod === 'Installments' && (
-                    <>
-                        <DropDownPicker
-                            open={openInstallments}
-                            value={installments}
-                            items={installmentMonthsData}
-                            setOpen={setOpenInstallments}
-                            setValue={setInstallments}
-                            placeholder="Select Installment Months"
-                            style={styles.dropdown}
-                            dropDownContainerStyle={styles.dropDownContainer}
-                            zIndex={3000}
-                        />
-                        <Text style={styles.label}>Per Installment</Text>
-                        <CustomInput placeholder="Enter Installment Amount" value={amount} onChangeText={setAmount} />
-                    </>
-                )}
-
-                {/* Amount Input */}
-                {paymentMethod !== 'Installments' && (
-                    <>
-                        <Text style={styles.label}>Amount</Text>
-                        <CustomInput placeholder="Enter Amount" value={amount} onChangeText={setAmount} />
-                    </>
-                )}
-
-                {/* Due Date */}
-                <View>
-                    <Text style={styles.label}>Due date</Text>
-                    <TouchableOpacity
-                        onPress={() => setShowDatePicker(true)}
-                        style={styles.dateInput}
-                    >
-                        <Text style={{ color: 'gray' }}>{dueDate.toLocaleDateString()}</Text>
-                        <Ionicons name="calendar" size={wp('5%')} color="#797979" />
-                    </TouchableOpacity>
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={dueDate}
-                            mode="date"
-                            display="default"
-                            onChange={onDateChange}
-                        />
+                    {/* Conditional Rendering based on Installments */}
+                    {paymentMethod === 'Installments' && (
+                        <>
+                            <Text style={styles.labelLeft}>Installment Months</Text>
+                            <DropDownPicker
+                                open={openInstallments}
+                                value={installments}
+                                items={installmentMonthsData}
+                                setOpen={setOpenInstallments}
+                                setValue={setInstallments}
+                                placeholder="Select Installment Months"
+                                style={styles.dropdown}
+                                dropDownContainerStyle={styles.dropDownContainer}
+                                zIndex={3000}
+                            />
+                            <Text style={styles.labelLeft}>Per Installment</Text>
+                            <CustomInput placeholder="Enter Installment Amount" value={amount} onChangeText={setAmount} />
+                        </>
                     )}
-                </View>
 
-                {/* Description Input */}
-                <Text style={styles.label}>Description</Text>
-                <CustomInput
-                    placeholder="Type here"
-                    multiline={true}
-                    numberOfLines={4}
-                    style={styles.descriptionInput}
-                    value={description}
-                    onChangeText={setDescription}
-                />
+                    {/* Amount Input */}
+                    {paymentMethod !== 'Installments' && (
+                        <>
+                            <Text style={styles.labelLeft}>Amount</Text>
+                            <CustomInput placeholder="Enter Amount" value={amount} onChangeText={setAmount} />
+                        </>
+                    )}
 
-                {/* Save Button */}
-                <CustomButton label="Save" onPress={handleSave} />
-            </ScrollView>
+                    {/* Due Date */}
+                    <Text style={styles.labelLeft}>Due Date</Text>
+                    <View>
+                        <TouchableOpacity
+                            onPress={() => setShowDatePicker(true)}
+                            style={styles.dateInput}
+                        >
+                            <Text style={{ color: 'gray' }}>{dueDate.toLocaleDateString()}</Text>
+                            <Ionicons name="calendar" size={wp('5%')} color="#797979" />
+                        </TouchableOpacity>
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={dueDate}
+                                mode="date"
+                                display="default"
+                                onChange={onDateChange}
+                            />
+                        )}
+                    </View>
+
+                    {/* Description Input */}
+                    <Text style={styles.labelLeft}>Description</Text>
+                    <CustomInput
+                        placeholder="Type here"
+                        multiline={true}
+                        numberOfLines={4}
+                        style={styles.descriptionInput}
+                        value={description}
+                        onChangeText={setDescription}
+                    />
+                    <CustomButton label="Save" onPress={handleSave} />
+                
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -206,6 +217,7 @@ const styles = StyleSheet.create({
     backIcon: {
         position: 'absolute',
         left: wp('0%'),
+        marginLeft: wp('5%'),
     },
     headerTitle: {
         fontSize: wp('6%'),
@@ -227,7 +239,15 @@ const styles = StyleSheet.create({
         color: '#000',
         fontWeight: 'bold',
         margin: hp('2%'),
-        alignSelf: 'center'
+    },
+    labelLeft: {
+        fontSize: wp('4%'),
+        color: '#000',
+        fontWeight: 'bold',
+        marginTop: hp('2%'),
+        marginBottom: hp('0.5%'),
+        textAlign: 'left',
+        marginLeft: 0,
     },
     dateInput: {
         flexDirection: 'row',

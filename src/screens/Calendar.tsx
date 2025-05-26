@@ -27,8 +27,6 @@ const CalendarScreen = ({ navigation }: any) => {
         }, []);
     }, [folders]);
 
-    console.log('Upcoming Payments:', upcomingPayments);
-
     // Format for marking the dates in Calendar
     const markedDates = useMemo(() => {
         const marked: any = {};

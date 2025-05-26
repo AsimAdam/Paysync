@@ -1,44 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'; 
-import { store, persistor } from './src/redux/store';
+import { store, persistor } from './src/global/store';
 import Nav from './src/stack/nav';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Alert } from 'react-native';
+import { avatars } from './src/assets/avatars';
 
 export default function App() {
     const [initialRoute, setInitialRoute] = useState<string | null>(null);
-    const [path, setPath] = useState<string | null>(null);
 
     useEffect(() => {
-        const checkPath = async () => {
+        const checkProfile = async () => {
             try {
-                const storedUrl = await AsyncStorage.getItem('decryptedNexaUrl');
-                if (storedUrl) {
-                    console.log('Stored Nexa URL found:', storedUrl);
-                    setPath(storedUrl);
-                    setInitialRoute('Payments');
+                const userName = await AsyncStorage.getItem('userName');
+                const userAvatar = await AsyncStorage.getItem('selectedAvatar');
+                const idx = userAvatar !== null ? parseInt(userAvatar, 10) : NaN;
+                if (userName && !isNaN(idx) && idx >= 0 && idx < avatars.length) {
+                    setInitialRoute('Main');
                 } else {
-                    setInitialRoute('Splash'); 
+                    setInitialRoute('CreateProfile');
                 }
             } catch (error) {
-                console.error('Error checking stored Nexa URL:', error);
-                setInitialRoute('Splash'); 
+                console.error('Error checking profile:', error);
+                Alert.alert('Error', 'Something went wrong while checking your profile.');
+                setInitialRoute('CreateProfile');
             }
         };
 
-        checkPath();
+        checkProfile();
     }, []);
 
     if (!initialRoute) {
-        // Render a loading state until the initial route is determined
         return null;
     }
 
     return (
         <Provider store={store}> 
             <PersistGate loading={null} persistor={persistor}> 
-                <Nav initialRoute={initialRoute} decryptedNexaUrl={path} />
+                <Nav initialRoute={initialRoute} />
             </PersistGate>
         </Provider>
     );

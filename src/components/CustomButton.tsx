@@ -13,11 +13,10 @@ const CustomButton = ({ label, onPress }: any) => (
 const styles = StyleSheet.create({
     button: {
         backgroundColor: '#3D3EAA',
-        paddingVertical: hp('1%'),
-        borderRadius: wp('4%'),
+        paddingVertical: hp('1.5%'),
+        borderRadius: wp('2%'),
         alignItems: 'center',
-        // marginTop: hp('2%'),
-        width: screenWidth * 0.8,
+        width: screenWidth * 0.9,
         alignSelf: 'center', 
     },
     buttonText: {

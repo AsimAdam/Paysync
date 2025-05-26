@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Header from '../components/Header';
 import AddFolderModal from '../components/FolderModal';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { addFolder } from '../redux/actions';
+import { addFolder } from '../global/actions';
 
 const Dues = ({ navigation }: any) => {
     const [isModalVisible, setModalVisible] = useState(false);

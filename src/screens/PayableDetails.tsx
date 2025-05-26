@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useDispatch } from 'react-redux';
-import { updatePaymentStatus } from '../redux/actions';
+import { updatePaymentStatus } from '../global/actions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PayableDetails = ({ navigation, route }: any) => {

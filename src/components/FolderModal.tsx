@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { addFolder } from '../redux/actions';
+import { addFolder } from '../global/actions';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { CheckBox } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,18 +16,19 @@ const AddFolderModal = ({ visible, onClose }: any) => {
             Alert.alert('Error', 'Please enter a folder name');
             return;
         }
-
-        const newFolder = {
-            id: Date.now().toString(),
-            name: folderName,
-            type: folderType,
-            payments: [],
-        };
-
-        console.log('Adding new folder:', newFolder);
-        dispatch(addFolder(newFolder));
-        setFolderName('');
-        onClose();
+        try {
+            const newFolder = {
+                id: Date.now().toString(),
+                name: folderName,
+                type: folderType,
+                payments: [],
+            };
+            dispatch(addFolder(newFolder));
+            setFolderName('');
+            onClose();
+        } catch (error) {
+            Alert.alert('Error', 'Something went wrong while adding the folder.');
+        }
     };
 
     return (

@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderColor: '#E0E0E0',
-        borderRadius: wp('4%'),
-        padding: wp('2%'),
+        borderRadius: wp('2%'),
+        padding: wp('4%'),
         backgroundColor: '#FFFFFF',
     },
     label: {

@@ -6,23 +6,16 @@ import Dues from '../screens/Dues';
 import Paid from '../screens/Paid';
 import FolderDetails from '../screens/FolderDetails';
 import PaymentForm from '../screens/PaymentForm';
-import Splash from '../screens/Splash';
+import CreateProfile from '../screens/CreateProfile';
 import ReceivableDetails from '../screens/ReceivableDetails';
 import PayableDetails from '../screens/PayableDetails';
-import CreateProfile from '../screens/CreateProfile';
-import Payments from '../screens/Payment';
 
 const Stack = createStackNavigator();
 
-const Nav = ({ initialRoute, decryptedNexaUrl }: any) => {
+const Nav = ({ initialRoute }: { initialRoute: string }) => {
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName={initialRoute}>
-                <Stack.Screen 
-                    name="Splash" 
-                    component={Splash} 
-                    options={{ headerShown: false }} 
-                />
                 <Stack.Screen 
                     name="CreateProfile" 
                     component={CreateProfile} 
@@ -67,12 +60,6 @@ const Nav = ({ initialRoute, decryptedNexaUrl }: any) => {
                     name="PaymentForm" 
                     component={PaymentForm} 
                     options={{ headerShown: false }}
-                />
-                <Stack.Screen 
-                    name="Payments" 
-                    component={Payments} 
-                    options={{ headerShown: false }} 
-                    initialParams={{ url: decryptedNexaUrl }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

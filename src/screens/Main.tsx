@@ -1,57 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import Slider from '../components/Slider';
 import NavCard from '../cards/NavCard';
 import PaymentsCard from '../cards/PaymentsCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { avatars } from '../controllers/avatars';
+import { useUserProfile } from '../hooks/useUserProfile';
+import { Folder, Payment, getRecentUnpaidPayments } from '../utils/paymentUtils';
+import { RootState } from '../global/store';
+import NoUpcomingImage from '../assets/no-upcoming.png';
 
 const Main = ({ navigation }: any) => {
-
-    const [userName, setUserName] = useState<any>(null);
-    const [userAvatar, setUserAvatar] = useState<any>(null);
-
-    // Fetching the saved user profile data from AsyncStorage
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                const name = await AsyncStorage.getItem('userName');
-                const avatarIndex = await AsyncStorage.getItem('selectedAvatar');
-                if (name) setUserName(name);
-                if (avatarIndex) setUserAvatar(avatars[parseInt(avatarIndex)]);
-            } catch (error) {
-                console.error('Error fetching profile data:', error);
-            }
-        };
-        fetchProfileData();
-    }, []);
+    const { userName, userAvatar } = useUserProfile();
 
     // Accessing the folders and payments from Redux store
-    const folders = useSelector((state: any) => state.folders.folders);
+    const folders: Folder[] = useSelector((state: RootState) => state.folders.folders);
 
-    // Extracting recent unpaid payments from all folders
-    const recentPayments = folders.reduce((acc: any[], folder: any) => {
-        const folderPayments = folder.payments
-            .filter((payment: any) => !payment.paid)
-            .map((payment: any) => ({
-                ...payment,
-                folderId: folder.id,
-                folderType: folder.type,
-            }));
-        return acc.concat(folderPayments);
-    }, []);
-
-    // Sort recent payments by due date
-    const sortedPayments = recentPayments
-        .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-        .slice(0, 5); 
+    // Extracting recent unpaid payments from all folders using utility
+    const sortedPayments: Payment[] = getRecentUnpaidPayments(folders, 5);
 
     // Handle payment card press - based on folder type (payable or receivable)
-    const handlePaymentPress = (payment: any) => {
-        const folder = folders.find((folder: any) =>
-            folder.payments.some((folderPayment: any) => folderPayment.id === payment.id)
+    const handlePaymentPress = (payment: Payment) => {
+        const folder = folders.find((folder) =>
+            folder.payments.some((folderPayment) => folderPayment.id === payment.id)
         );
         if (folder) {
             if (folder.type === 'payable') {
@@ -103,7 +74,7 @@ const Main = ({ navigation }: any) => {
 
                 <View style={styles.paymentsContainer}>
                     {sortedPayments.length > 0 ? (
-                        sortedPayments.map((payment: any) => (
+                        sortedPayments.map((payment) => (
                             <TouchableOpacity
                                 key={payment.id}
                                 onPress={() => handlePaymentPress(payment)}
@@ -117,7 +88,10 @@ const Main = ({ navigation }: any) => {
                             </TouchableOpacity>
                         ))
                     ) : (
-                        <Text style={styles.noPaymentsText}>No payments yet</Text>
+                        <View style={styles.emptyStateContainer}>
+                            <Image source={NoUpcomingImage} style={styles.emptyStateImage} resizeMode="contain" />
+                            <Text style={styles.noPaymentsText}>No payments yet</Text>
+                        </View>
                     )}
                 </View>
             </ScrollView>
@@ -193,6 +167,17 @@ const styles = StyleSheet.create({
         color: '#717171',
         textAlign: 'center',
         marginTop: hp('2%'),
+    },
+    emptyStateContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: hp('4%'),
+    },
+    emptyStateImage: {
+        width: wp('40%'),
+        height: wp('40%'),
+        marginBottom: hp('2%'),
+        opacity: 0.7,
     },
 });
 

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import PaymentsCard from '../cards/PaymentsCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import NoUpcomingImage from '../assets/no-upcoming.png';
 
 const FolderDetails = ({ navigation, route }: any) => {
     const { folderId, folderName } = route.params;
@@ -91,7 +92,10 @@ const FolderDetails = ({ navigation, route }: any) => {
                     ))}
                 </View>
             ) : (
-                <Text style={styles.noPaymentsText}>No Payments Added Yet</Text>
+                <View style={styles.emptyStateContainer}>
+                    <Image source={NoUpcomingImage} style={styles.emptyStateImage} resizeMode="contain" />
+                    <Text style={styles.noPaymentsText}>No Payments Added Yet</Text>
+                </View>
             )}
 
             <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('PaymentForm', { folderId, folderName })}>
@@ -116,7 +120,6 @@ const styles = StyleSheet.create({
     },
     backIcon: {
         position: 'absolute',
-        left: wp('4%'),
         zIndex: 10, 
         padding: 20, 
     },
@@ -174,6 +177,18 @@ const styles = StyleSheet.create({
         width: wp('7%'),
         height: wp('7%'),
         resizeMode: 'contain',
+    },
+    emptyStateContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: hp('0.5%'),
+        
+    },
+    emptyStateImage: {
+        width: wp('40%'),
+        height: wp('40%'),
+        marginBottom: hp('0.5%'),
+        opacity: 0.7,
     },
 });
 
