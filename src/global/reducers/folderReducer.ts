@@ -1,3 +1,19 @@
+// folderReducer.ts
+//
+// Redux reducer for managing folders and their associated payments in the application state.
+//
+// State:
+// - FolderState: Contains an array of Folder objects, each with payments.
+//
+// Actions handled:
+// - ADD_FOLDER: Adds a new folder to the state.
+// - ADD_PAYMENT: Adds a payment to a specific folder.
+// - UPDATE_PAYMENT_STATUS: Updates the status of a payment in a folder.
+//
+// Notes:
+// - Designed for use in financial or organizational apps with folder/payment structure.
+// - Extend action types and state as needed for additional features.
+
 export interface Payment {
     id: string;
     title: string;

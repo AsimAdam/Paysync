@@ -1,3 +1,15 @@
+// paymentUtils.ts
+//
+// Utility functions for handling payment data within folders.
+//
+// Exports:
+// - Payment, Folder interfaces: Type definitions for payment and folder objects.
+// - getRecentUnpaidPayments: Extracts and sorts recent unpaid payments from a list of folders.
+//
+// Notes:
+// - Designed for use in financial or organizational apps where payments are grouped by folders.
+// - Extend interfaces as needed for additional payment/folder properties.
+
 // Utility to extract and sort recent unpaid payments from folders
 
 export interface Payment {

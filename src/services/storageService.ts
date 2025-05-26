@@ -1,6 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppError, ErrorCodes, handleError } from '../utils/errorHandling';
 
+// storageService.ts
+//
+// Singleton service for managing persistent storage of user profile data using AsyncStorage.
+//
+// Exports:
+// - UserProfile interface: Type definition for user profile objects.
+// - StorageService singleton: Provides methods to save, retrieve, and clear user profile data.
+//
+// Notes:
+// - Handles errors using a custom error handler for consistent error management.
+// - Designed for React Native apps requiring persistent user data.
+
 export interface UserProfile {
     name: string;
     avatarIndex: number;

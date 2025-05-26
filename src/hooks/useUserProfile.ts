@@ -7,6 +7,19 @@ interface UserProfile {
   userAvatar: any | null;
 }
 
+// useUserProfile.ts
+//
+// Custom React hook for retrieving the current user's profile information (name and avatar) from AsyncStorage.
+//
+// Returns:
+// - userName: The user's name (string or null)
+// - userAvatar: The user's avatar object (from assets) or null
+//
+// Notes:
+// - Designed for use in React Native apps with persistent user profiles.
+// - Reads from AsyncStorage keys: 'userName' and 'selectedAvatar'.
+// - Avatar is resolved from the imported avatars array.
+
 export function useUserProfile(): UserProfile {
   const [userName, setUserName] = useState<string | null>(null);
   const [userAvatar, setUserAvatar] = useState<any | null>(null);
