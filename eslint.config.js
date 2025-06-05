@@ -3,14 +3,14 @@ export default [
     files: ['**/*.{js,jsx,ts,tsx}'],
     ignores: ['node_modules', 'dist', 'build'],
     languageOptions: {
-      parser: '@typescript-eslint/parser',
+      parser: (await import('@typescript-eslint/parser')).default,
       parserOptions: {
         ecmaVersion: 2021,
         sourceType: 'module',
       },
     },
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      '@typescript-eslint': (await import('@typescript-eslint/eslint-plugin')).default,
     },
     rules: {
       'no-unused-vars': 'warn',
